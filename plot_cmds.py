@@ -53,17 +53,20 @@ class TimePlot(TimeSeriesCmd):
 
 	@staticmethod
 	def _prep_data(data, emoji, **kwargs):
-		data = data.loc[data['name'] == emoji.name]
-		data = data.sort_values(by='time', ignore_index=True)
-		final = data['count'].cumsum()
-		final.index = data['time']
-		return final
+		dataset = []
+		for emote in emoji:
+			working_data = data.loc[data['name'] == emote.name]
+			working_data = working_data.sort_values(by='time', ignore_index=True)
+			final = working_data['count'].cumsum()
+			final.index = working_data['time']
+			final.name = emote.name
+			dataset.append(final)
+		return dataset
 
 	@staticmethod
 	def _config_plot_options(emoji, **kwargs):
 		plotting_kwargs = {
-			'color' : "tab:blue",
 			'y_label' : "Count (#)",
-			'title' : f"{emoji.name} count history."
+			'title' : "Count history."
 		}
 		return plotting_kwargs

@@ -13,6 +13,7 @@ Individual, specifc commands are defined elsewhere.
 import logging
 
 from discord.ext.commands import BadArgument
+from discord.emoji import Emoji
 import matplotlib.pyplot as plt
 from humanize import naturaltime
 import pandas as pd
@@ -20,20 +21,6 @@ import pandas as pd
 logger = logging.getLogger(__name__)
 
 class PlotCmd(object):
-
-	"""
-	def _arg_validator(*args):
-		pass
-
-	def _prep_data(*args):
-		pass
-
-	def _config_plotting_options(*args):
-		pass
-
-	def _make_plot(*args):
-		pass
-	"""
 
 	def plot(self, count_data, count_metadata, **kwargs):
 		""" Main workhorse. Calls the other functions to produce plot.
@@ -87,19 +74,26 @@ class TimeSeriesCmd(PlotCmd):
 	def _arg_validator(count_data, **kwargs):
 		""" Checks the plotting command arguments for type and such.
 		"""
-		if kwargs['emoji'] not in kwargs['server_emojis']:
-			raise BadArgument("Must be a custom emoji")
+		for emoji in kwargs['emoji']:
+			if not isinstance(emoji, Emoji):
+				raise BadArgument("Arguments must be emoji(s).")
+			if emoji not in kwargs['server_emojis']:
+				raise BadArgument("Must be a custom emoji.")
 		return kwargs
 
 	@staticmethod
-	def _make_plot(data, title, y_label, color):
+	def _make_plot(data, title, y_label):
 		""" The function that does the actual MATPLOTLIB stuff.
 		"""
 		FILENAME = "some_hardcoded_filename_for_now.png"
-		data.plot(color=color)
+		labels = []
+		for entry in data:
+			entry.plot()
+			labels.append(entry.name)
 		plt.ylabel(y_label)
 		plt.xlabel(None)
 		plt.title(title)
+		plt.legend(labels)
 		plt.savefig(FILENAME)
 		plt.close()
 		return FILENAME

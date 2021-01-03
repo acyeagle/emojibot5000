@@ -2,6 +2,7 @@
 from datetime import datetime
 import logging
 from time import time as get_time
+from typing import List
 
 import discord
 from discord.ext import commands
@@ -133,10 +134,9 @@ async def freq(ctx, plot_type:str="all", amount:int=0):
 	await ctx.send(file=discord.File(plot_filename))
 
 @bot.command()
-async def history(ctx, emoji:discord.emoji.Emoji):
+async def history(ctx, *args: discord.emoji.Emoji):
 	""" Generates plots from already counted data.
-	Plots uses/day for each emoji, in the counted interval.
-	Plot types are "top x", "bottom x", and "all".
+	Produces time series plots of the suppliied emoji(s).
 	"""
 	logger.info("%s command received", ctx.command)
 	logger.verbose("User: %s, Args: %s", ctx.author, ctx.args)
@@ -145,7 +145,7 @@ async def history(ctx, emoji:discord.emoji.Emoji):
 	plot_filename = time_plotter.plot(count_data=count_data,
 									  count_metadata=count_metadata,
 									  server_emojis=ctx.guild.emojis,
-									  emoji=emoji)
+									  emoji=args)
 	await ctx.message.delete()
 	await ctx.send(file=discord.File(plot_filename))
 
